@@ -6,6 +6,7 @@
   <title>Church of Interbeing — Berlin</title>
   <link rel="icon" type="image/png" href="coilogo.png" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -203,14 +204,11 @@
     .venue-addr { font-size: 12px; color: #9a9085; display: block; margin-top: 1px; }
     .venue-addr a { color: #9a7830; text-decoration: none; border-bottom: 0.5px solid rgba(160,130,80,0.3); }
     .venue-addr a:hover { color: #a07840; }
-    .location-map-placeholder {
-      border: 0.5px solid rgba(160,130,80,0.2); background: rgba(255,253,248,0.8); height: 220px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 0.75rem; color: #c0b8a8; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
-      text-decoration: none; transition: border-color 0.3s;
+    .location-map-iframe {
+      width: 100%; height: 260px;
+      border: 0.5px solid rgba(160,130,80,0.2);
+      display: block;
     }
-    .location-map-placeholder:hover { border-color: rgba(160,120,64,0.4); }
-    .location-map-placeholder i { font-size: 32px; color: rgba(160,120,64,0.3); }
 
     .contact-section { padding: 4rem 2.5rem 2.5rem; text-align: center; border-top: 0.5px solid rgba(160,130,80,0.15); }
     .contact-section h2 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: #1a1510; margin-bottom: 0.5rem; }
@@ -402,10 +400,17 @@
         </div>
       </div>
     </div>
-    <a class="location-map-placeholder" href="https://www.google.com/maps/place//data=!4m2!3m1!1s0x47a84f04d7dfcd05:0x5023dd3a63218876" target="_blank" rel="noopener">
-      <i class="ti ti-map-pin" aria-hidden="true"></i>
-      <span>Schillerkiez · Neukölln · Berlin</span>
-    </a>
+    <div id="coi-map" style="width:100%;height:260px;border:0.5px solid rgba(160,130,80,0.2);cursor:pointer;"></div>
+    <div style="margin-top:0.5rem; display:flex; gap:1.5rem; font-size:11px; color:#9a9085; flex-wrap:wrap;">
+      <a href="https://www.google.com/maps/search/?api=1&query=Genezarethkirche+Herrfurthplatz+Berlin" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:5px;text-decoration:none;color:#9a7830;">
+        <span style="width:9px;height:9px;border-radius:50%;background:#c0392b;display:inline-block;flex-shrink:0;"></span>
+        Genezarethkirche · Herrfurthplatz
+      </a>
+      <a href="https://www.google.com/maps/search/?api=1&query=Schillerpromenade+16+Berlin" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:5px;text-decoration:none;color:#9a7830;">
+        <span style="width:9px;height:9px;border-radius:50%;background:#c0392b;display:inline-block;flex-shrink:0;"></span>
+        Gemeindesaal · Schillerpromenade 16
+      </a>
+    </div>
   </div>
 
   <div class="contact-section">
@@ -432,5 +437,37 @@
     <span class="footer-copy">interbeing.life · Berlin</span>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+  <script>
+    var map = L.map('coi-map', { zoomControl: true, scrollWheelZoom: false }).setView([52.4760, 52.4760], 16);
+    map.setView([52.4760, 13.4278], 16);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 19
+    }).addTo(map);
+
+    var redIcon = L.icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+      shadowUrl: 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/images/marker-shadow.png',
+      iconSize: [25, 41], iconAnchor: [12, 41],
+      popupAnchor: [1, -34], shadowSize: [41, 41]
+    });
+
+    var gURL = 'https://www.google.com/maps/search/?api=1&query=Genezarethkirche+Herrfurthplatz+Berlin';
+    var sURL = 'https://www.google.com/maps/search/?api=1&query=Schillerpromenade+16+Berlin';
+
+    L.marker([52.4758, 13.4268], {icon: redIcon})
+      .addTo(map)
+      .bindPopup('<b>Genezarethkirche</b><br>Herrfurthplatz, 12049 Berlin<br><a href="' + gURL + '" target="_blank">Open in Google Maps</a>');
+
+    L.marker([52.4755, 13.4298], {icon: redIcon})
+      .addTo(map)
+      .bindPopup('<b>Gemeindesaal</b><br>Schillerpromenade 16, 12049 Berlin<br><a href="' + sURL + '" target="_blank">Open in Google Maps</a>');
+
+    document.getElementById('coi-map').addEventListener('click', function() {
+      window.open('https://www.google.com/maps/search/?api=1&query=Herrfurthplatz+Berlin', '_blank');
+    });
+  </script>
 </body>
 </html>
